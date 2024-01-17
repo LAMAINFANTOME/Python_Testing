@@ -24,10 +24,19 @@ clubs = loadClubs()
 def index():
     return render_template('index.html')
 
-@app.route('/showSummary',methods=['POST'])
+"""@app.route('/showSummary',methods=['POST'])
 def showSummary():
     club = [club for club in clubs if club['email'] == request.form['email']][0]
-    return render_template('welcome.html',club=club,competitions=competitions)
+    return render_template('welcome.html',club=club,competitions=competitions)"""
+
+#Route pour la page acceuil de chaque club
+@app.route('/showSummary',methods=['POST'])
+def showSummary():
+    club = next((club for club in clubs if club['email'] == request.form['email']), None)
+    if club:
+        return render_template('welcome.html',club=club,competitions=competitions)
+    else:
+        return redirect(url_for('index'))
 
 
 @app.route('/book/<competition>/<club>')
@@ -47,6 +56,7 @@ def purchasePlaces():
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    club['points']= int(club['points'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
